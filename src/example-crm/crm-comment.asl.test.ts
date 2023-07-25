@@ -71,6 +71,7 @@ describe("tests for crm-comment.asl.json", () => {
         afterCompletion
       );
     });
+
     it("scenario NegativeSentimentTest", async () => {
       expect.hasAssertions();
       invariant(_aslRunner);
@@ -82,6 +83,7 @@ describe("tests for crm-comment.asl.json", () => {
         afterCompletion
       );
     });
+
     it("scenario CustomValidationFailedCatchTest", async () => {
       expect.hasAssertions();
       invariant(_aslRunner);
@@ -93,6 +95,7 @@ describe("tests for crm-comment.asl.json", () => {
         afterCompletion
       );
     });
+
     it("scenario ValidationExceptionCatchTest", async () => {
       expect.hasAssertions();
       invariant(_aslRunner);
@@ -104,6 +107,7 @@ describe("tests for crm-comment.asl.json", () => {
         afterCompletion
       );
     });
+
     it("scenario RetryOnServiceExceptionTest", async () => {
       expect.hasAssertions();
       invariant(_aslRunner);

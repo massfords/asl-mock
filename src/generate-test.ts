@@ -46,9 +46,11 @@ const findExportedMockConfigFile = (
   found: boolean;
   mockConfigTypeArgs?: string[];
   stateMachines?: StateMachines;
+  decl: string;
 } => {
   const stateMachinesObject: StateMachines = {};
   const mockConfigTypeArgs: string[] = [];
+  let declName = "";
   ts.forEachChild(node, (n): void => {
     if (
       isVariableStatement(n) &&
@@ -66,6 +68,7 @@ const findExportedMockConfigFile = (
             decl.initializer &&
             "properties" in decl.initializer
           ) {
+            declName = decl.name.getText();
             const typeArgs = decl.type.typeArguments;
             const stateMachines = (
               decl.initializer as ObjectLiteralExpression
@@ -109,13 +112,19 @@ const findExportedMockConfigFile = (
     found: Object.keys(stateMachinesObject).length > 0,
     mockConfigTypeArgs,
     stateMachines: stateMachinesObject,
+    decl: declName,
   };
 };
 
 // Function to parse the TypeScript file and return the result
 export const parseTypeScriptFile = (
   inputFilePath: string
-): { found: boolean; typeArgs?: string[]; stateMachines?: StateMachines } => {
+): {
+  found: boolean;
+  mockConfigTypeArgs?: string[];
+  stateMachines?: StateMachines;
+  decl: string;
+} => {
   const sourceCode = sys.readFile(inputFilePath);
   invariant(sourceCode, "failed to find input");
   const sourceFile = createSourceFile(
@@ -126,4 +135,91 @@ export const parseTypeScriptFile = (
     ScriptKind.TS
   );
   return findExportedMockConfigFile(sourceFile);
+};
+
+export const emitTestFile = ({
+  mockConfig,
+  mockConfigSrcFile,
+  mockConfigTypeArgs,
+  aslSourcePath,
+  testCases,
+}: {
+  mockConfig: string;
+  mockConfigSrcFile: string;
+  mockConfigTypeArgs: string[];
+  aslSourcePath: string;
+  testCases: string[];
+}): string => {
+  const optionalTypeArgs =
+    mockConfigTypeArgs.length > 0 ? `<${mockConfigTypeArgs.join(",")}>` : "";
+  const aslFileName = aslSourcePath.split("/").slice(-1)[0] as string;
+  const aslFileStem = aslFileName.split(".asl.json")[0] as string;
+  return `import path from "path";
+import { AslTestRunner } from "../runner";
+import type {
+  CustomErrors,
+  StateMachineNames,
+  StateNames,
+  TestCases,
+} from "${mockConfigSrcFile}";
+import { ${mockConfig} } from "${mockConfigSrcFile}";
+import invariant from "tiny-invariant";
+
+jest.setTimeout(180 * 1000);
+describe("tests for ${aslFileName}", () => {
+  const outdir = path.join(__dirname, ".asl-puml");
+
+  let _aslRunner: AslTestRunner${optionalTypeArgs} | null = null;
+
+  beforeAll(async () => {
+    _aslRunner = await AslTestRunner.createRunner${optionalTypeArgs}(${mockConfig}, {
+      "${aslFileStem}": path.join(
+        __dirname,
+        "${aslSourcePath}"
+      ),
+    });
+  });
+
+  afterEach(() => {
+    _aslRunner?.reset();
+  });
+
+  afterAll(async () => {
+    await _aslRunner?.stop();
+  });
+
+  describe("mock config scenarios", () => {
+    const afterCompletion = {
+      writeScenarioPuml: outdir,
+      expectTaskSnapshots: true,
+      logHistoryEventsOnFailure: true,
+    };
+
+    const nameAndStartMessage: {
+      name: StateMachineNames;
+      startMessage: unknown;
+    } = {
+      name: "${aslFileStem}",
+      startMessage: {},
+    };
+    ${testCases
+      .map((tc) => {
+        return `
+    it("scenario ${tc}", async () => {
+      expect.hasAssertions();
+      invariant(_aslRunner);
+      await _aslRunner.execute(
+        {
+          ...nameAndStartMessage,
+          scenario: "${tc}",
+        },
+        afterCompletion
+      );
+    });
+        `;
+      })
+      .join("\n")}
+  });
+});
+  `;
 };
