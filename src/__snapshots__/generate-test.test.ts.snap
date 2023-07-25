@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`tests the generation of units tests from mock config should extract the details from mockconfig 1`] = `
+Object {
+  "found": true,
+  "mockConfigTypeArgs": Array [
+    "StateMachineNames",
+    "TestCases",
+    "StateNames",
+    "string",
+    "CustomErrors",
+  ],
+  "stateMachines": Object {
+    "crm-comment": Array [
+      "HappyPathTest",
+      "NegativeSentimentTest",
+      "CustomValidationFailedCatchTest",
+      "ValidationExceptionCatchTest",
+      "RetryOnServiceExceptionTest",
+    ],
+  },
+}
+`;

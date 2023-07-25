@@ -1,0 +1,52 @@
+@startuml
+hide empty description
+skinparam ArrowColor #black
+skinparam state {
+
+    BackgroundColor<<Choice>> #whitesmoke
+    FontColor<<Choice>> automatic
+
+    BackgroundColor<<aslParallel>> #whitesmoke
+
+    BackgroundColor<<aslTask>> #lightblue
+    FontColor<<aslTask>> automatic
+    BackgroundColor<<Compensate>> #orange
+    FontColor<<CustomStyle0>> automatic
+    BackgroundColor<<CustomStyle0>> #86ea9f
+    FontColor<<CustomStyle1>> automatic
+    BackgroundColor<<CustomStyle1>> #2b665e
+    FontColor<<CustomStyle2>> automatic
+    BackgroundColor<<CustomStyle2>> #red
+    FontColor<<CustomStyle3>> automatic
+    BackgroundColor<<CustomStyle3>> #2b665e
+    FontColor<<CustomStyle4>> gray
+    BackgroundColor<<CustomStyle4>> #whitesmoke
+}
+state "Validation" as state1<<CustomStyle0>> {
+state "Branch 1" as state1_1 {
+state "Check Identity" as state9<<CustomStyle2>>
+}
+state "Branch 2" as state1_2 {
+state "Check Address" as state10<<CustomStyle1>>
+}
+}
+state "DetectSentiment" as state2<<CustomStyle4>>
+state "ValidationException" as state3<<CustomStyle4>>
+state "Is Positive \nSentiment?" as state4<<Choice>>
+state "NegativeSentimentDetected" as state5<<CustomStyle4>>
+state "CustomValidationFailed" as state6<<CustomStyle3>>
+state "Add to FollowUp" as state7<<CustomStyle4>>
+state "CustomerAddedToFollowup" as state8<<CustomStyle4>>
+[*] --> state1
+state1 -[#lightgray]-> state2
+state1 -[bold,#orange]-> state6
+state1 -[#lightgray]-> state3
+state2 -[#lightgray]-> state4
+state3 -[#lightgray]-> [*]
+state4 -[#lightgray]-> state7
+state4 -[#lightgray]-> state5
+state5 -[#lightgray]-> [*]
+state6 --> [*]
+state7 -[#lightgray]-> state8
+state8 -[#lightgray]-> [*]
+@enduml
