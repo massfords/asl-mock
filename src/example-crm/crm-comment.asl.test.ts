@@ -6,9 +6,8 @@ import type {
   StateNames,
   TestCases,
 } from "./crm-comment.mock";
-import { CrmCommentMock } from "./crm-comment.mock";
+import { CrmCommentMock, StartMessages } from "./crm-comment.mock";
 import invariant from "tiny-invariant";
-import { ValidPositiveComment } from "./start-messages";
 
 jest.setTimeout(180 * 1000);
 describe("tests for crm-comment.asl.json", () => {
@@ -52,20 +51,13 @@ describe("tests for crm-comment.asl.json", () => {
       logHistoryEventsOnFailure: true,
     };
 
-    const nameAndStartMessage: {
-      name: StateMachineNames;
-      startMessage: unknown;
-    } = {
-      name: "crm-comment",
-      startMessage: ValidPositiveComment,
-    };
-
     it("scenario HappyPathTest", async () => {
       expect.hasAssertions();
       invariant(_aslRunner);
       await _aslRunner.execute(
         {
-          ...nameAndStartMessage,
+          name: "crm-comment",
+          startMessage: StartMessages["HappyPathTest"],
           scenario: "HappyPathTest",
         },
         afterCompletion
@@ -77,7 +69,8 @@ describe("tests for crm-comment.asl.json", () => {
       invariant(_aslRunner);
       await _aslRunner.execute(
         {
-          ...nameAndStartMessage,
+          name: "crm-comment",
+          startMessage: StartMessages["NegativeSentimentTest"],
           scenario: "NegativeSentimentTest",
         },
         afterCompletion
@@ -89,7 +82,8 @@ describe("tests for crm-comment.asl.json", () => {
       invariant(_aslRunner);
       await _aslRunner.execute(
         {
-          ...nameAndStartMessage,
+          name: "crm-comment",
+          startMessage: StartMessages["CustomValidationFailedCatchTest"],
           scenario: "CustomValidationFailedCatchTest",
         },
         afterCompletion
@@ -101,7 +95,8 @@ describe("tests for crm-comment.asl.json", () => {
       invariant(_aslRunner);
       await _aslRunner.execute(
         {
-          ...nameAndStartMessage,
+          name: "crm-comment",
+          startMessage: StartMessages["ValidationExceptionCatchTest"],
           scenario: "ValidationExceptionCatchTest",
         },
         afterCompletion
@@ -113,7 +108,8 @@ describe("tests for crm-comment.asl.json", () => {
       invariant(_aslRunner);
       await _aslRunner.execute(
         {
-          ...nameAndStartMessage,
+          name: "crm-comment",
+          startMessage: StartMessages["RetryOnServiceExceptionTest"],
           scenario: "RetryOnServiceExceptionTest",
         },
         afterCompletion

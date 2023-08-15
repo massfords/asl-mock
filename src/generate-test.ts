@@ -162,7 +162,7 @@ import type {
   StateNames,
   TestCases,
 } from "${mockConfigSrcFile}";
-import { ${mockConfig} } from "${mockConfigSrcFile}";
+import { ${mockConfig}, StartMessages } from "${mockConfigSrcFile}";
 import invariant from "tiny-invariant";
 
 jest.setTimeout(180 * 1000);
@@ -195,13 +195,6 @@ describe("tests for ${aslFileName}", () => {
       logHistoryEventsOnFailure: true,
     };
 
-    const nameAndStartMessage: {
-      name: StateMachineNames;
-      startMessage: unknown;
-    } = {
-      name: "${aslFileStem}",
-      startMessage: {},
-    };
     ${testCases
       .map((tc) => {
         return `
@@ -210,7 +203,8 @@ describe("tests for ${aslFileName}", () => {
       invariant(_aslRunner);
       await _aslRunner.execute(
         {
-          ...nameAndStartMessage,
+          name: "${aslFileStem}",
+          startMessage: StartMessages['${tc}'],
           scenario: "${tc}",
         },
         afterCompletion
