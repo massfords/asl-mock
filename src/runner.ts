@@ -18,10 +18,10 @@ import { JSONPath } from "jsonpath-plus";
 import type { StartedTestContainer, TestContainer } from "testcontainers";
 import { GenericContainer } from "testcontainers";
 
-import invariant from "tiny-invariant";
 import type { MockConfigFile } from "./types";
 import type { AslDefinition } from "asl-puml";
 import { writeScenarioPuml } from "./write-scenario-puml";
+import { must } from "asl-puml";
 
 const delay = async (message: string, time: number): Promise<void> => {
   await new Promise((resolve) => {
@@ -143,7 +143,7 @@ export class AslTestRunner<
       await delay("waiting for events", attempt * 250);
       attempt += 1;
     }
-    invariant(success === 1, "unable to connect to service");
+    must(success === 1, "unable to connect to service");
   }
 
   private async deployStateMachine({
@@ -153,7 +153,7 @@ export class AslTestRunner<
     definition: string;
     name: string;
   }): Promise<string> {
-    invariant(this.client, "call initClient before deploying");
+    must(this.client, "call initClient before deploying");
     const result = await this.client.send(
       new CreateStateMachineCommand({
         name,
@@ -161,7 +161,7 @@ export class AslTestRunner<
         roleArn: "arn:aws:iam::012345678901:role/DummyRole",
       })
     );
-    invariant(result.stateMachineArn, "expected fsm to be deployed");
+    must(result.stateMachineArn, "expected fsm to be deployed");
     this.deployments[name] = {
       stateMachineArn: result.stateMachineArn,
       definition,
@@ -171,7 +171,7 @@ export class AslTestRunner<
 
   getDefinition(name: StateMachineName): string {
     const deployment = this.deployments[name];
-    invariant(deployment, "unknown fsm name");
+    must(deployment, "unknown fsm name");
     return deployment.definition;
   }
 
@@ -187,7 +187,7 @@ export class AslTestRunner<
   }
 
   async awaitCompletion(executionArn: string): Promise<void> {
-    invariant(this.client, "client not set");
+    must(this.client, "client not set");
     let machineOutput: DescribeExecutionOutput | null = null;
     while (!machineOutput || machineOutput.status == "RUNNING") {
       machineOutput = await this.client.send(
@@ -232,11 +232,11 @@ export class AslTestRunner<
       puml?: string;
     } = { logHistoryEventsOnFailure: true, expectTaskSnapshots: true }
   ): Promise<string> {
-    invariant(this.client, "client not set");
+    must(this.client, "client not set");
     const { stateMachineArn } = this.deployments[name] as {
       stateMachineArn: string;
     };
-    invariant(stateMachineArn, "fsm not deployed");
+    must(stateMachineArn, "fsm not deployed");
     let executionArn: string | null = null;
     try {
       const response = await this.client.send(
@@ -251,7 +251,7 @@ export class AslTestRunner<
       console.error("failed to launch", { err });
       throw err;
     }
-    invariant(executionArn, "expected fsm execution started");
+    must(executionArn, "expected fsm execution started");
     if (afterCompletion) {
       await this.awaitCompletion(executionArn);
       const {
@@ -274,7 +274,7 @@ export class AslTestRunner<
       if (!executionSucceeded && logHistoryEventsOnFailure) {
         console.error("fsm failed", { events: this.getHistoryEvents() });
       }
-      invariant(executionSucceeded, "fsm execution failed");
+      must(executionSucceeded, "fsm execution failed");
       if (expectTaskSnapshots) {
         this.expectTaskSnapshots({ scenario, name });
       }
@@ -294,7 +294,7 @@ export class AslTestRunner<
     taskName: StateNames,
     options?: { which?: number; path?: string | null } | null
   ): Record<string, unknown> {
-    invariant(this.history, "execute the fsm first");
+    must(this.history, "execute the fsm first");
     // find the entered state for this task
     let count = 0;
     let matchedId = -1;
@@ -306,13 +306,13 @@ export class AslTestRunner<
           matchedId = evt.id;
         }
       }
-      invariant(count <= stopOn, "task execution not found");
+      must(count <= stopOn, "task execution not found");
       if (
         count === stopOn &&
         matchedId === evt.previousEventId &&
         evt.taskScheduledEventDetails
       ) {
-        invariant(
+        must(
           evt.taskScheduledEventDetails.parameters,
           "expected task parameters"
         );
@@ -320,7 +320,7 @@ export class AslTestRunner<
       }
       return false;
     });
-    invariant(
+    must(
       scheduled?.taskScheduledEventDetails?.parameters,
       `task parameters not found for ${taskName}`
     );
@@ -350,9 +350,9 @@ export class AslTestRunner<
     name: StateMachineName;
   }): void {
     const fsm = this.mockConfigFile.StateMachines[name];
-    invariant(fsm);
+    must(fsm);
     const tasks = fsm.TestCases[scenario];
-    invariant(tasks);
+    must(tasks);
     const assertions: TaskAssertion<StateNames>[] = Object.keys(tasks).map(
       (sn) => {
         const stateName = sn as StateNames;

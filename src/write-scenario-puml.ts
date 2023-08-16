@@ -1,5 +1,9 @@
-import { asl_to_puml, AslDefinition, UserSpecifiedConfig } from "asl-puml";
-import invariant from "tiny-invariant";
+import {
+  asl_to_puml,
+  AslDefinition,
+  must,
+  UserSpecifiedConfig,
+} from "asl-puml";
 import fs from "fs";
 import path from "path";
 import { HistoryEvent, HistoryEventType } from "@aws-sdk/client-sfn";
@@ -61,7 +65,7 @@ export const writeScenarioPuml = ({
 }): void => {
   const theme: UserSpecifiedConfig = themeFromHistory(history);
   const result = asl_to_puml(definition, theme);
-  invariant(result.isValid);
+  must(result.isValid);
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir);
   }
@@ -84,7 +88,7 @@ const getStateResults = (history: HistoryEvent[]): StateExecution[] => {
   return history
     .filter((evt) => evt.stateEnteredEventDetails?.name)
     .map((evt) => {
-      invariant(evt.stateEnteredEventDetails?.name);
+      must(evt.stateEnteredEventDetails?.name);
       return {
         name: evt.stateEnteredEventDetails.name,
         result: map.get(evt.stateEnteredEventDetails.name) ?? null,

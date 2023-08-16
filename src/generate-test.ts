@@ -8,7 +8,7 @@ import ts, {
   SyntaxKind,
   sys,
 } from "typescript";
-import invariant from "tiny-invariant";
+import { must } from "asl-puml";
 
 interface StateMachines {
   [key: string]: string[];
@@ -126,7 +126,7 @@ export const parseTypeScriptFile = (
   decl: string;
 } => {
   const sourceCode = sys.readFile(inputFilePath);
-  invariant(sourceCode, "failed to find input");
+  must(sourceCode, "failed to find input");
   const sourceFile = createSourceFile(
     inputFilePath,
     sourceCode,
@@ -163,7 +163,7 @@ import type {
   TestCases,
 } from "${mockConfigSrcFile}";
 import { ${mockConfig}, StartMessages } from "${mockConfigSrcFile}";
-import invariant from "tiny-invariant";
+import { must } from "asl-puml";
 
 jest.setTimeout(180 * 1000);
 describe("tests for ${aslFileName}", () => {

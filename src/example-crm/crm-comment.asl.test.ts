@@ -7,7 +7,7 @@ import type {
   TestCases,
 } from "./crm-comment.mock";
 import { CrmCommentMock, StartMessages } from "./crm-comment.mock";
-import invariant from "tiny-invariant";
+import { must } from "asl-puml";
 
 jest.setTimeout(180 * 1000);
 describe("tests for crm-comment.asl.json", () => {
@@ -53,7 +53,7 @@ describe("tests for crm-comment.asl.json", () => {
 
     it("scenario HappyPathTest", async () => {
       expect.hasAssertions();
-      invariant(_aslRunner);
+      must(_aslRunner);
       await _aslRunner.execute(
         {
           name: "crm-comment",
@@ -66,7 +66,7 @@ describe("tests for crm-comment.asl.json", () => {
 
     it("scenario NegativeSentimentTest", async () => {
       expect.hasAssertions();
-      invariant(_aslRunner);
+      must(_aslRunner);
       await _aslRunner.execute(
         {
           name: "crm-comment",
@@ -79,7 +79,7 @@ describe("tests for crm-comment.asl.json", () => {
 
     it("scenario CustomValidationFailedCatchTest", async () => {
       expect.hasAssertions();
-      invariant(_aslRunner);
+      must(_aslRunner);
       await _aslRunner.execute(
         {
           name: "crm-comment",
@@ -92,7 +92,7 @@ describe("tests for crm-comment.asl.json", () => {
 
     it("scenario ValidationExceptionCatchTest", async () => {
       expect.hasAssertions();
-      invariant(_aslRunner);
+      must(_aslRunner);
       await _aslRunner.execute(
         {
           name: "crm-comment",
@@ -105,7 +105,7 @@ describe("tests for crm-comment.asl.json", () => {
 
     it("scenario RetryOnServiceExceptionTest", async () => {
       expect.hasAssertions();
-      invariant(_aslRunner);
+      must(_aslRunner);
       await _aslRunner.execute(
         {
           name: "crm-comment",
