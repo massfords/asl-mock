@@ -50,9 +50,6 @@ state1 -[#lightgray]-> state3
 state2 --> state4
 state3 -[#lightgray]-> [*]
 state4 --> state7
-note on link
-POSITIVE
-end note
 state4 -[#lightgray]-> state5
 state5 -[#lightgray]-> [*]
 state6 -[#lightgray]-> [*]
