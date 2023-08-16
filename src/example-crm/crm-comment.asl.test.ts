@@ -47,7 +47,7 @@ describe("tests for crm-comment.asl.json", () => {
 
   describe("mock config scenarios", () => {
     const afterCompletion = {
-      writeScenarioPuml: outdir,
+      puml: outdir,
       expectTaskSnapshots: true,
       logHistoryEventsOnFailure: true,
     };
