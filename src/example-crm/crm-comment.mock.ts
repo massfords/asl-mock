@@ -1,4 +1,4 @@
-import type { MockConfigFile } from "../types";
+import type { MockConfigFile } from "../lib/types";
 
 export type StateMachineNames = "crm-comment";
 

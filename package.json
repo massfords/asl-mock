@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "description": "Types and helpers for AWS MockConfigFile",
   "main": "./dist/index.js",
+  "bin": {
+    "asl-mock": "./dist/asl-mock.js"
+  },
   "scripts": {
     "build": "npx tsc",
     "clean": "rimraf dist",
@@ -47,6 +50,7 @@
     "@aws-sdk/client-sfn": "^3.391.0",
     "asl-puml": "^0.18.0",
     "asl-validator": "^3.8.0",
+    "commander": "^11.0.0",
     "testcontainers": "^9.12.0"
   }
 }

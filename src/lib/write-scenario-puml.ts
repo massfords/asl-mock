@@ -21,7 +21,7 @@ const ERROR_COLOR = "#red";
 
 const themeFromHistory = (history: HistoryEvent[]): UserSpecifiedConfig => {
   const states = getStateResults(history);
-  console.log("computing theme", { states });
+  // console.log("computing theme", { states });
   return {
     theme: {
       lines: {
