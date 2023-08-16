@@ -28,6 +28,12 @@ skinparam state {
     FontColor<<CustomStyle7>> gray
     BackgroundColor<<CustomStyle7>> #whitesmoke
 }
+state "Add to FollowUp" as state7<<CustomStyle5>>
+state "CustomValidationFailed" as state6<<CustomStyle7>>
+state "CustomerAddedToFollowup" as state8<<CustomStyle6>>
+state "DetectSentiment" as state2<<CustomStyle3>>
+state "Is Positive \nSentiment?" as state4<<Choice>>
+state "NegativeSentimentDetected" as state5<<CustomStyle7>>
 state "Validation" as state1<<CustomStyle0>> {
 state "Branch 1" as state1_1 {
 state "Check Identity" as state9<<CustomStyle1>>
@@ -36,13 +42,7 @@ state "Branch 2" as state1_2 {
 state "Check Address" as state10<<CustomStyle2>>
 }
 }
-state "DetectSentiment" as state2<<CustomStyle3>>
 state "ValidationException" as state3<<CustomStyle7>>
-state "Is Positive \nSentiment?" as state4<<Choice>>
-state "NegativeSentimentDetected" as state5<<CustomStyle7>>
-state "CustomValidationFailed" as state6<<CustomStyle7>>
-state "Add to FollowUp" as state7<<CustomStyle5>>
-state "CustomerAddedToFollowup" as state8<<CustomStyle6>>
 [*] --> state1
 state1 --> state2
 state1 -[#lightgray]-> state6
