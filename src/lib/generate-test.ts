@@ -145,6 +145,7 @@ export const emitTestFile = ({
   aslSourcePath,
   testCases,
   aslTestRunnerPath,
+  esm,
 }: {
   mockConfig: string;
   mockConfigSrcFile: string;
@@ -152,6 +153,7 @@ export const emitTestFile = ({
   aslSourcePath: string;
   testCases: string[];
   aslTestRunnerPath: string;
+  esm: boolean;
 }): string => {
   const optionalTypeArgs =
     mockConfigTypeArgs.length > 0 ? `<${mockConfigTypeArgs.join(",")}>` : "";
@@ -165,21 +167,21 @@ import type {
   StateMachineNames,
   StateNames,
   TestCases,
-} from "${mockConfigSrcFile}";
-import { ${mockConfig}, StartMessages } from "${mockConfigSrcFile}";
-import { must } from "asl-puml";
+} from "${mockConfigSrcFile}${esm ? ".js" : ""}";
+import { ${mockConfig}, StartMessages } from "${mockConfigSrcFile}${
+    esm ? ".js" : ""
+  }";
 
-jest.setTimeout(180 * 1000);
 describe("tests for ${aslFileName}", () => {
+  const TIMEOUT = 30 * 1000
   const outdir = path.join(__dirname, ".asl-puml");
 
   let _aslRunner: AslTestRunner${optionalTypeArgs} | null = null;
 
   beforeAll(async () => {
-    const dirname = new URL('.', import.meta.url).pathname
     _aslRunner = await AslTestRunner.createRunner${optionalTypeArgs}(${mockConfig}, {
       "${aslFileStem}": path.join(
-        dirname,
+        ${esm ? `new URL('.', import.meta.url).pathname` : "__dirname"},
         "${aslSourcePath}"
       ),
     });
@@ -205,8 +207,7 @@ describe("tests for ${aslFileName}", () => {
         return `
     it("scenario ${tc}", async () => {
       expect.hasAssertions();
-      must(_aslRunner);
-      await _aslRunner.execute(
+      await _aslRunner?.execute(
         {
           name: "${aslFileStem}",
           startMessage: StartMessages['${tc}'],
@@ -214,7 +215,7 @@ describe("tests for ${aslFileName}", () => {
         },
         afterCompletion
       );
-    });
+    }, TIMEOUT);
         `;
       })
       .join("\n")}

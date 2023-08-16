@@ -20,6 +20,7 @@ program
   .requiredOption("-i --input <input>", "path to mock config ts file")
   .requiredOption("-a --asl <asl>", "relative path to asl src during test")
   .option("-o --out <out>", "path for emitted test file")
+  .option("--no-esm", "disables esm style imports")
   .parse(process.argv);
 
 function outputFileFromInput(input: string): string {
@@ -36,6 +37,7 @@ function generateTestFile(): void {
       input: string;
       asl: string;
       out?: string;
+      esm: boolean;
     } = program.opts();
 
     const { found, mockConfigTypeArgs, stateMachines, decl } =
@@ -59,6 +61,7 @@ function generateTestFile(): void {
       mockConfigTypeArgs,
       mockConfig: decl,
       aslTestRunnerPath: "asl-mock",
+      esm: opts.esm,
     });
     const outputFile = opts.out ?? outputFileFromInput(opts.input);
     fs.writeFileSync(outputFile, output, "utf-8");
