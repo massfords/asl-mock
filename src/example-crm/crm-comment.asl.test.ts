@@ -8,10 +8,9 @@ import type {
   TestCases,
 } from "./crm-comment.mock";
 import { CrmCommentMock, StartMessages } from "./crm-comment.mock";
-import { must } from "asl-puml";
 
-jest.setTimeout(180 * 1000);
 describe("tests for crm-comment.asl.json", () => {
+  const TIMEOUT = 30 * 1000;
   const outdir = path.join(__dirname, ".asl-puml");
 
   let _aslRunner: AslTestRunner<
@@ -23,7 +22,6 @@ describe("tests for crm-comment.asl.json", () => {
   > | null = null;
 
   beforeAll(async () => {
-    const dirname = new URL(".", import.meta.url).pathname;
     _aslRunner = await AslTestRunner.createRunner<
       StateMachineNames,
       TestCases,
@@ -32,7 +30,7 @@ describe("tests for crm-comment.asl.json", () => {
       CustomErrors
     >(CrmCommentMock, {
       "crm-comment": path.join(
-        dirname,
+        __dirname,
         "../../src/example-crm/crm-comment.asl.json"
       ),
     });
@@ -53,69 +51,84 @@ describe("tests for crm-comment.asl.json", () => {
       logHistoryEventsOnFailure: true,
     };
 
-    it("scenario HappyPathTest", async () => {
-      expect.hasAssertions();
-      must(_aslRunner);
-      await _aslRunner.execute(
-        {
-          name: "crm-comment",
-          startMessage: StartMessages["HappyPathTest"],
-          scenario: "HappyPathTest",
-        },
-        afterCompletion
-      );
-    });
+    it(
+      "scenario HappyPathTest",
+      async () => {
+        expect.hasAssertions();
+        await _aslRunner?.execute(
+          {
+            name: "crm-comment",
+            startMessage: StartMessages["HappyPathTest"],
+            scenario: "HappyPathTest",
+          },
+          afterCompletion
+        );
+      },
+      TIMEOUT
+    );
 
-    it("scenario NegativeSentimentTest", async () => {
-      expect.hasAssertions();
-      must(_aslRunner);
-      await _aslRunner.execute(
-        {
-          name: "crm-comment",
-          startMessage: StartMessages["NegativeSentimentTest"],
-          scenario: "NegativeSentimentTest",
-        },
-        afterCompletion
-      );
-    });
+    it(
+      "scenario NegativeSentimentTest",
+      async () => {
+        expect.hasAssertions();
+        await _aslRunner?.execute(
+          {
+            name: "crm-comment",
+            startMessage: StartMessages["NegativeSentimentTest"],
+            scenario: "NegativeSentimentTest",
+          },
+          afterCompletion
+        );
+      },
+      TIMEOUT
+    );
 
-    it("scenario CustomValidationFailedCatchTest", async () => {
-      expect.hasAssertions();
-      must(_aslRunner);
-      await _aslRunner.execute(
-        {
-          name: "crm-comment",
-          startMessage: StartMessages["CustomValidationFailedCatchTest"],
-          scenario: "CustomValidationFailedCatchTest",
-        },
-        afterCompletion
-      );
-    });
+    it(
+      "scenario CustomValidationFailedCatchTest",
+      async () => {
+        expect.hasAssertions();
+        await _aslRunner?.execute(
+          {
+            name: "crm-comment",
+            startMessage: StartMessages["CustomValidationFailedCatchTest"],
+            scenario: "CustomValidationFailedCatchTest",
+          },
+          afterCompletion
+        );
+      },
+      TIMEOUT
+    );
 
-    it("scenario ValidationExceptionCatchTest", async () => {
-      expect.hasAssertions();
-      must(_aslRunner);
-      await _aslRunner.execute(
-        {
-          name: "crm-comment",
-          startMessage: StartMessages["ValidationExceptionCatchTest"],
-          scenario: "ValidationExceptionCatchTest",
-        },
-        afterCompletion
-      );
-    });
+    it(
+      "scenario ValidationExceptionCatchTest",
+      async () => {
+        expect.hasAssertions();
+        await _aslRunner?.execute(
+          {
+            name: "crm-comment",
+            startMessage: StartMessages["ValidationExceptionCatchTest"],
+            scenario: "ValidationExceptionCatchTest",
+          },
+          afterCompletion
+        );
+      },
+      TIMEOUT
+    );
 
-    it("scenario RetryOnServiceExceptionTest", async () => {
-      expect.hasAssertions();
-      must(_aslRunner);
-      await _aslRunner.execute(
-        {
-          name: "crm-comment",
-          startMessage: StartMessages["RetryOnServiceExceptionTest"],
-          scenario: "RetryOnServiceExceptionTest",
-        },
-        afterCompletion
-      );
-    });
+    it(
+      "scenario RetryOnServiceExceptionTest",
+      async () => {
+        expect.hasAssertions();
+        await _aslRunner?.execute(
+          {
+            name: "crm-comment",
+            startMessage: StartMessages["RetryOnServiceExceptionTest"],
+            scenario: "RetryOnServiceExceptionTest",
+          },
+          afterCompletion
+        );
+      },
+      TIMEOUT
+    );
   });
 });
