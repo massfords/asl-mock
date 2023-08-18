@@ -2,9 +2,10 @@ import { join } from "path";
 import { emitTestFile, parseTypeScriptFile } from "./generate-test";
 import * as fs from "fs";
 import { must } from "asl-puml";
+import { describe, it, expect } from "vitest";
 
 describe("tests the generation of units tests from mock config", () => {
-  it("should extract the details from mockconfig", () => {
+  it("should extract the details from mockconfig", async () => {
     expect.hasAssertions();
 
     const outFile = join(__dirname, "../example-crm/crm-comment.asl.test.ts");
@@ -16,7 +17,7 @@ describe("tests the generation of units tests from mock config", () => {
     must(found, "not found");
     must(mockConfigTypeArgs, "not type args");
     must(stateMachines, "no state machines");
-    const output = emitTestFile({
+    const output = await emitTestFile({
       testCases: stateMachines["crm-comment"] as string[],
       aslSourcePath: "../../src/example-crm/crm-comment.asl.json",
       mockConfigSrcFile: "./crm-comment.mock",
