@@ -34,10 +34,10 @@ state "Is Positive \nSentiment?" as state4<<Choice>>
 state "NegativeSentimentDetected" as state5<<CustomStyle5>>
 state "Validation" as state1<<CustomStyle0>> {
 state "Branch 1" as state1_1 {
-state "Check Identity" as state9<<CustomStyle2>>
+state "Check Identity" as state9<<CustomStyle1>>
 }
 state "Branch 2" as state1_2 {
-state "Check Address" as state10<<CustomStyle1>>
+state "Check Address" as state10<<CustomStyle2>>
 }
 }
 state "ValidationException" as state3<<CustomStyle6>>

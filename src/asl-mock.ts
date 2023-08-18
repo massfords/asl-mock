@@ -31,7 +31,7 @@ function outputFileFromInput(input: string): string {
   }
 }
 
-function generateTestFile(): void {
+async function generateTestFile(): Promise<void> {
   try {
     const opts: {
       input: string;
@@ -54,7 +54,7 @@ function generateTestFile(): void {
       fail("mockConfigTypeArgs not found in mock config");
       return;
     }
-    const output = emitTestFile({
+    const output = await emitTestFile({
       testCases: Object.values(stateMachines)[0] as string[],
       aslSourcePath: opts.asl,
       mockConfigSrcFile: `./${path.parse(path.basename(opts.input)).name}`,
@@ -67,8 +67,15 @@ function generateTestFile(): void {
     fs.writeFileSync(outputFile, output, "utf-8");
     doneValid();
   } catch (e: unknown) {
-    fail("asl-mock exception:" + JSON.stringify(e));
+    fail(
+      `asl-mock exception: ${
+        (e as { message?: string }).message ?? "no message"
+      }`
+    );
+    // fail("asl-mock exception:" + JSON.stringify(e));
   }
 }
 
-generateTestFile();
+void (async () => {
+  await generateTestFile();
+})();
