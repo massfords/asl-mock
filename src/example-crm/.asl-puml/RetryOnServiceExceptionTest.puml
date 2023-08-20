@@ -12,7 +12,7 @@ skinparam state {
     FontColor<<aslTask>> automatic
     BackgroundColor<<Compensate>> #orange
     FontColor<<CustomStyle0>> automatic
-    BackgroundColor<<CustomStyle0>> #86ea9f
+    BackgroundColor<<CustomStyle0>> #2b665e
     FontColor<<CustomStyle1>> automatic
     BackgroundColor<<CustomStyle1>> #2b665e
     FontColor<<CustomStyle2>> automatic
@@ -20,26 +20,26 @@ skinparam state {
     FontColor<<CustomStyle3>> automatic
     BackgroundColor<<CustomStyle3>> #2b665e
     FontColor<<CustomStyle4>> automatic
-    BackgroundColor<<CustomStyle4>> #86ea9f
+    BackgroundColor<<CustomStyle4>> #2b665e
     FontColor<<CustomStyle5>> automatic
-    BackgroundColor<<CustomStyle5>> #2b665e
+    BackgroundColor<<CustomStyle5>> #86ea9f
     FontColor<<CustomStyle6>> automatic
-    BackgroundColor<<CustomStyle6>> #2b665e
+    BackgroundColor<<CustomStyle6>> #86ea9f
     FontColor<<CustomStyle7>> gray
     BackgroundColor<<CustomStyle7>> #whitesmoke
 }
-state "Add to FollowUp" as state7<<CustomStyle5>>
+state "Add to FollowUp" as state7<<CustomStyle0>>
 state "CustomValidationFailed" as state6<<CustomStyle7>>
-state "CustomerAddedToFollowup" as state8<<CustomStyle6>>
-state "DetectSentiment" as state2<<CustomStyle3>>: <:warning:> <:warning:> <:warning:> <:white_check_mark:>
+state "CustomerAddedToFollowup" as state8<<CustomStyle3>>
+state "DetectSentiment" as state2<<CustomStyle4>>: <:warning:> <:warning:> <:warning:> <:white_check_mark:>
 state "Is Positive \nSentiment?" as state4<<Choice>>
 state "NegativeSentimentDetected" as state5<<CustomStyle7>>
-state "Validation" as state1<<CustomStyle0>> {
+state "Validation" as state1<<CustomStyle6>> {
 state "Branch 1" as state1_1 {
-state "Check Identity" as state9<<CustomStyle1>>
+state "Check Identity" as state9<<CustomStyle2>>
 }
 state "Branch 2" as state1_2 {
-state "Check Address" as state10<<CustomStyle2>>
+state "Check Address" as state10<<CustomStyle1>>
 }
 }
 state "ValidationException" as state3<<CustomStyle7>>

@@ -124,5 +124,5 @@ const getStateResults = (history: HistoryEvent[]): StateExecution[] => {
       stateResults.results.push("error");
     }
   });
-  return [...map.values()];
+  return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
 };

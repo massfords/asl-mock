@@ -236,7 +236,19 @@ describe("tests for ${aslFileName}", () => {
 });
   `;
 
-  const eslint = new ESLint();
+  const eslint = new ESLint({
+    overrideConfig: {
+      parser: "@typescript-eslint/parser",
+      plugins: ["@typescript-eslint"],
+      extends: [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@typescript-eslint/recommended-requiring-type-checking",
+        "plugin:prettier/recommended",
+        "prettier",
+      ],
+    },
+  });
   const [lintResults] = await eslint.lintText(code);
   const eslintFormattedCode = lintResults?.output || code;
   return format(eslintFormattedCode, {

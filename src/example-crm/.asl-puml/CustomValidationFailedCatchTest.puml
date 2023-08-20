@@ -12,28 +12,28 @@ skinparam state {
     FontColor<<aslTask>> automatic
     BackgroundColor<<Compensate>> #orange
     FontColor<<CustomStyle0>> automatic
-    BackgroundColor<<CustomStyle0>> #86ea9f
+    BackgroundColor<<CustomStyle0>> #2b665e
     FontColor<<CustomStyle1>> automatic
     BackgroundColor<<CustomStyle1>> #red
     FontColor<<CustomStyle2>> automatic
     BackgroundColor<<CustomStyle2>> #2b665e
     FontColor<<CustomStyle3>> automatic
-    BackgroundColor<<CustomStyle3>> #2b665e
+    BackgroundColor<<CustomStyle3>> #86ea9f
     FontColor<<CustomStyle4>> gray
     BackgroundColor<<CustomStyle4>> #whitesmoke
 }
 state "Add to FollowUp" as state7<<CustomStyle4>>
-state "CustomValidationFailed" as state6<<CustomStyle3>>
+state "CustomValidationFailed" as state6<<CustomStyle2>>
 state "CustomerAddedToFollowup" as state8<<CustomStyle4>>
 state "DetectSentiment" as state2<<CustomStyle4>>
 state "Is Positive \nSentiment?" as state4<<Choice>>
 state "NegativeSentimentDetected" as state5<<CustomStyle4>>
-state "Validation" as state1<<CustomStyle0>> {
+state "Validation" as state1<<CustomStyle3>> {
 state "Branch 1" as state1_1 {
 state "Check Identity" as state9<<CustomStyle1>>
 }
 state "Branch 2" as state1_2 {
-state "Check Address" as state10<<CustomStyle2>>
+state "Check Address" as state10<<CustomStyle0>>
 }
 }
 state "ValidationException" as state3<<CustomStyle4>>
