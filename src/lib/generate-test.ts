@@ -228,6 +228,7 @@ describe("tests for ${aslFileName}", () => {
           name: "${aslFileStem}",
           startMessage: StartMessages['${tc}'],
           scenario: "${tc}",
+          expect,
         },
         afterCompletion
       );

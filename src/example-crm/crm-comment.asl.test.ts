@@ -61,6 +61,7 @@ describe("tests for crm-comment.asl.json", () => {
             name: "crm-comment",
             startMessage: StartMessages["HappyPathTest"],
             scenario: "HappyPathTest",
+            expect,
           },
           afterCompletion,
         );
@@ -77,6 +78,7 @@ describe("tests for crm-comment.asl.json", () => {
             name: "crm-comment",
             startMessage: StartMessages["NegativeSentimentTest"],
             scenario: "NegativeSentimentTest",
+            expect,
           },
           afterCompletion,
         );
@@ -93,6 +95,7 @@ describe("tests for crm-comment.asl.json", () => {
             name: "crm-comment",
             startMessage: StartMessages["CustomValidationFailedCatchTest"],
             scenario: "CustomValidationFailedCatchTest",
+            expect,
           },
           afterCompletion,
         );
@@ -109,6 +112,7 @@ describe("tests for crm-comment.asl.json", () => {
             name: "crm-comment",
             startMessage: StartMessages["ValidationExceptionCatchTest"],
             scenario: "ValidationExceptionCatchTest",
+            expect,
           },
           afterCompletion,
         );
@@ -125,6 +129,7 @@ describe("tests for crm-comment.asl.json", () => {
             name: "crm-comment",
             startMessage: StartMessages["RetryOnServiceExceptionTest"],
             scenario: "RetryOnServiceExceptionTest",
+            expect,
           },
           afterCompletion,
         );

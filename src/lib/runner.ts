@@ -1,8 +1,6 @@
 import fs from "fs";
 import os from "os";
 
-import { expect } from "vitest";
-
 import type {
   DescribeExecutionOutput,
   HistoryEvent,
@@ -25,6 +23,7 @@ import type { AslDefinition } from "asl-puml";
 import { writeScenarioPuml } from "./write-scenario-puml";
 import { must } from "asl-puml";
 import { log } from "../logger.js";
+import { ExpectStatic } from "vitest";
 
 const delay = async (message: string, time: number): Promise<void> => {
   await new Promise((resolve) => {
@@ -143,8 +142,9 @@ export class AslTestRunner<
         log("able to list state machines");
         success += 1;
         break;
-      } catch {
+      } catch (err: unknown) {
         // ignore errors while the app is starting
+        log("error while listing, will retry", { err });
       }
       await delay("waiting for events", attempt * 250);
       attempt += 1;
@@ -229,10 +229,12 @@ export class AslTestRunner<
       scenario,
       startMessage,
       name,
+      expect,
     }: {
       startMessage: unknown;
       scenario: TestNames;
       name: StateMachineName;
+      expect: ExpectStatic;
     },
     afterCompletion: {
       logThisTaskInputOnFailure?: StateNames;
@@ -285,7 +287,7 @@ export class AslTestRunner<
       }
       must(executionSucceeded, "fsm execution failed");
       if (expectTaskSnapshots) {
-        this.expectTaskSnapshots({ scenario, name });
+        this.expectTaskSnapshots({ scenario, name, expect });
       }
       if (puml) {
         writeScenarioPuml({
@@ -354,9 +356,11 @@ export class AslTestRunner<
   expectTaskSnapshots({
     scenario,
     name,
+    expect,
   }: {
     scenario: TestNames;
     name: StateMachineName;
+    expect: ExpectStatic;
   }): void {
     const fsm = this.mockConfigFile.StateMachines[name];
     must(fsm);
