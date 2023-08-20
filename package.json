@@ -1,6 +1,6 @@
 {
   "name": "asl-mock",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Types and helpers for AWS MockConfigFile",
   "main": "./dist/index.js",
   "bin": {

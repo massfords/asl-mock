@@ -25,6 +25,7 @@ describe("tests the generation of units tests from mock config", () => {
       mockConfig: decl,
       aslTestRunnerPath: "../lib/runner",
       esm: false,
+      flatEslint: false,
     });
     expect(output).toBeDefined();
     fs.writeFileSync(outFile, output, "utf-8");

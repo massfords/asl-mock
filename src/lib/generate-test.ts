@@ -11,6 +11,7 @@ import ts, {
 import { must } from "asl-puml";
 import { format } from "prettier";
 import { ESLint } from "eslint";
+import {} from "eslint/use-at-your-own-risk.js";
 
 interface StateMachines {
   [key: string]: string[];
@@ -163,6 +164,7 @@ export const emitTestFile = async ({
   testCases,
   aslTestRunnerPath,
   esm,
+  flatEslint,
 }: {
   mockConfig: string;
   mockConfigSrcFile: string;
@@ -171,6 +173,7 @@ export const emitTestFile = async ({
   testCases: string[];
   aslTestRunnerPath: string;
   esm: boolean;
+  flatEslint: boolean;
 }): Promise<string> => {
   const optionalTypeArgs =
     mockConfigTypeArgs.length > 0 ? `<${mockConfigTypeArgs.join(",")}>` : "";
@@ -238,15 +241,9 @@ describe("tests for ${aslFileName}", () => {
 
   const eslint = new ESLint({
     overrideConfig: {
-      parser: "@typescript-eslint/parser",
-      plugins: ["@typescript-eslint"],
-      extends: [
-        "eslint:recommended",
-        "plugin:@typescript-eslint/recommended",
-        "plugin:@typescript-eslint/recommended-requiring-type-checking",
-        "plugin:prettier/recommended",
-        "prettier",
-      ],
+      settings: {
+        flatEslint,
+      },
     },
   });
   const [lintResults] = await eslint.lintText(code);

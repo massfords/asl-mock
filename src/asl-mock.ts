@@ -4,6 +4,7 @@ import fs from "fs";
 import path from "path";
 import { program } from "commander";
 import { emitTestFile, parseTypeScriptFile } from "./lib/generate-test.js";
+import { setVerboseLogging } from "./logger.js";
 
 function doneValid() {
   process.exit(0);
@@ -21,6 +22,8 @@ program
   .requiredOption("-a --asl <asl>", "relative path to asl src during test")
   .option("-o --out <out>", "path for emitted test file")
   .option("--no-esm", "disables esm style imports")
+  .option("--no-flat", "flat es lint is enabled by default")
+  .option("-v --verbose", "enables verbose logging")
   .parse(process.argv);
 
 function outputFileFromInput(input: string): string {
@@ -38,7 +41,11 @@ async function generateTestFile(): Promise<void> {
       asl: string;
       out?: string;
       esm: boolean;
+      flat: boolean;
+      verbose?: boolean;
     } = program.opts();
+
+    setVerboseLogging(opts.verbose ?? false);
 
     const { found, mockConfigTypeArgs, stateMachines, decl } =
       parseTypeScriptFile(opts.input);
@@ -62,6 +69,7 @@ async function generateTestFile(): Promise<void> {
       mockConfig: decl,
       aslTestRunnerPath: "asl-mock",
       esm: opts.esm,
+      flatEslint: opts.flat,
     });
     const outputFile = opts.out ?? outputFileFromInput(opts.input);
     fs.writeFileSync(outputFile, output, "utf-8");
@@ -70,7 +78,7 @@ async function generateTestFile(): Promise<void> {
     fail(
       `asl-mock exception: ${
         (e as { message?: string }).message ?? "no message"
-      }`
+      }`,
     );
     // fail("asl-mock exception:" + JSON.stringify(e));
   }

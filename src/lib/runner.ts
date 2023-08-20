@@ -24,6 +24,7 @@ import type { MockConfigFile } from "./types";
 import type { AslDefinition } from "asl-puml";
 import { writeScenarioPuml } from "./write-scenario-puml";
 import { must } from "asl-puml";
+import { log } from "../logger.js";
 
 const delay = async (message: string, time: number): Promise<void> => {
   await new Promise((resolve) => {
@@ -46,7 +47,7 @@ export class AslTestRunner<
   TestNames extends string,
   StateNames extends string,
   MockedResponseNames extends string = string,
-  CustomErrors extends string = string
+  CustomErrors extends string = string,
 > {
   private readonly configFile: string;
   private startedContainer: StartedTestContainer | null = null;
@@ -65,13 +66,13 @@ export class AslTestRunner<
       StateNames,
       MockedResponseNames,
       CustomErrors
-    >
+    >,
   ) {
     this.configFile = `${os.tmpdir()}/MockConfigFile.json`;
     fs.writeFileSync(
       this.configFile,
       JSON.stringify(this.mockConfigFile),
-      "utf-8"
+      "utf-8",
     );
     const configFileInDocker = "/home/StepFunctionsLocal/MockConfigFile.json";
     this.testContainer = new GenericContainer("amazon/aws-stepfunctions-local")
@@ -94,7 +95,7 @@ export class AslTestRunner<
     TestNames extends string,
     StateNames extends string,
     MockedResponseNames extends string = string,
-    CustomErrors extends string = string
+    CustomErrors extends string = string,
   >(
     mockConfigFile: MockConfigFile<
       StateMachineName,
@@ -103,7 +104,7 @@ export class AslTestRunner<
       MockedResponseNames,
       CustomErrors
     >,
-    aslJsonFiles: Record<StateMachineName, string>
+    aslJsonFiles: Record<StateMachineName, string>,
   ): Promise<
     AslTestRunner<
       StateMachineName,
@@ -123,7 +124,9 @@ export class AslTestRunner<
   }
 
   private async initClient(): Promise<void> {
+    log("init client");
     this.startedContainer = await this.testContainer.start();
+    console.log("container started");
     const mappedPort = this.startedContainer.getMappedPort(port);
     const endpoint = `http://localhost:${mappedPort}`;
     this.client = new SFNClient({
@@ -137,6 +140,7 @@ export class AslTestRunner<
     while (attempt < 10) {
       try {
         await this.client.send(new ListStateMachinesCommand({}));
+        log("able to list state machines");
         success += 1;
         break;
       } catch {
@@ -146,6 +150,7 @@ export class AslTestRunner<
       attempt += 1;
     }
     must(success === 1, "unable to connect to service");
+    log("client initialized");
   }
 
   private async deployStateMachine({
@@ -155,13 +160,14 @@ export class AslTestRunner<
     definition: string;
     name: string;
   }): Promise<string> {
+    log("deploy state machine", name);
     must(this.client, "call initClient before deploying");
     const result = await this.client.send(
       new CreateStateMachineCommand({
         name,
         definition,
         roleArn: "arn:aws:iam::012345678901:role/DummyRole",
-      })
+      }),
     );
     must(result.stateMachineArn, "expected fsm to be deployed");
     this.deployments[name] = {
@@ -189,13 +195,14 @@ export class AslTestRunner<
   }
 
   async awaitCompletion(executionArn: string): Promise<void> {
+    log("awaiting completion of execution");
     must(this.client, "client not set");
     let machineOutput: DescribeExecutionOutput | null = null;
     while (!machineOutput || machineOutput.status == "RUNNING") {
       machineOutput = await this.client.send(
         new DescribeExecutionCommand({
           executionArn,
-        })
+        }),
       );
     }
 
@@ -204,7 +211,7 @@ export class AslTestRunner<
         executionArn,
         maxResults: 1000,
         includeExecutionData: true,
-      })
+      }),
     );
     // logger.debug(`execution history for ${executionArn}`, { executionHistory })
     this.history = executionHistory.events ?? [];
@@ -212,7 +219,7 @@ export class AslTestRunner<
 
   executionSucceeded(): boolean {
     const found = this.history.find(
-      (event) => event.type === "ExecutionSucceeded"
+      (event) => event.type === "ExecutionSucceeded",
     );
     return Boolean(found);
   }
@@ -232,7 +239,7 @@ export class AslTestRunner<
       logHistoryEventsOnFailure?: boolean;
       expectTaskSnapshots?: boolean;
       puml?: string;
-    } = { logHistoryEventsOnFailure: true, expectTaskSnapshots: true }
+    } = { logHistoryEventsOnFailure: true, expectTaskSnapshots: true },
   ): Promise<string> {
     must(this.client, "client not set");
     const { stateMachineArn } = this.deployments[name] as {
@@ -246,7 +253,7 @@ export class AslTestRunner<
           name: scenario,
           stateMachineArn: `${stateMachineArn}#${scenario}`,
           input: JSON.stringify(startMessage),
-        })
+        }),
       );
       executionArn = response.executionArn ?? null;
     } catch (err: unknown) {
@@ -294,7 +301,7 @@ export class AslTestRunner<
 
   getTaskParameters(
     taskName: StateNames,
-    options?: { which?: number; path?: string | null } | null
+    options?: { which?: number; path?: string | null } | null,
   ): Record<string, unknown> {
     must(this.history, "execute the fsm first");
     // find the entered state for this task
@@ -316,7 +323,7 @@ export class AslTestRunner<
       ) {
         must(
           evt.taskScheduledEventDetails.parameters,
-          "expected task parameters"
+          "expected task parameters",
         );
         return true;
       }
@@ -324,10 +331,10 @@ export class AslTestRunner<
     });
     must(
       scheduled?.taskScheduledEventDetails?.parameters,
-      `task parameters not found for ${taskName}`
+      `task parameters not found for ${taskName}`,
     );
     const taskInput = JSON.parse(
-      scheduled.taskScheduledEventDetails.parameters
+      scheduled.taskScheduledEventDetails.parameters,
     ) as Record<string, unknown>;
     if (options?.path) {
       return JSONPath({
@@ -359,17 +366,17 @@ export class AslTestRunner<
       (sn) => {
         const stateName = sn as StateNames;
         return { stateName };
-      }
+      },
     );
 
     assertions.forEach((assertion) => {
       expect(
-        this.getTaskParameters(assertion.stateName, assertion.options ?? null)
+        this.getTaskParameters(assertion.stateName, assertion.options ?? null),
       ).toMatchSnapshot(
         {
           ...(assertion?.propertyMatcher ?? {}),
         },
-        `${assertion.stateName}${assertion.label ?? ""}`
+        `${assertion.stateName}${assertion.label ?? ""}`,
       );
     });
   }
