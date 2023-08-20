@@ -1,6 +1,6 @@
 {
   "name": "asl-mock",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Types and helpers for AWS MockConfigFile",
   "main": "./dist/index.js",
   "bin": {
@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "npm run clean && npx tsc",
-    "clean": "rimraf dist && rimraf src/example-crm/.asl-puml && rimraf src/example-crm/crm-comment.asl.test.ts",
+    "clean": "rimraf dist src/example-crm/.asl-puml src/example-crm/crm-comment.asl.test.ts src/example-crm/__snapshots__",
     "lint": "npx eslint . --max-warnings 0 --ext ts",
     "test": "npm run build && vitest --run"
   },

@@ -273,8 +273,13 @@ export class AslTestRunner<
       } = afterCompletion;
       const executionSucceeded = this.executionSucceeded();
       if (!executionSucceeded && logThisTaskInputOnFailure) {
-        const taskFailureInput: { error?: { Cause?: string } } =
-          this.getTaskParameters(logThisTaskInputOnFailure);
+        const taskFailureInput: { error?: { Cause: string } } | null =
+          this.getTaskParameters(logThisTaskInputOnFailure).find((out) => {
+            return (
+              "error" in out &&
+              "Cause" in (out["error"] as Record<string, unknown>)
+            );
+          }) ?? null;
         if (taskFailureInput) {
           console.error(logThisTaskInputOnFailure, {
             taskFailureInput,
@@ -303,50 +308,46 @@ export class AslTestRunner<
 
   getTaskParameters(
     taskName: StateNames,
-    options?: { which?: number; path?: string | null } | null,
-  ): Record<string, unknown> {
+    options?: { path?: string | null } | null,
+  ): Array<Record<string, unknown>> {
     must(this.history, "execute the fsm first");
-    // find the entered state for this task
-    let count = 0;
-    let matchedId = -1;
-    const stopOn = Number(options?.which ?? 1);
-    const scheduled = this.history.find((evt) => {
-      if (evt.stateEnteredEventDetails?.name === taskName) {
-        count += 1;
-        if (count === stopOn && matchedId === -1 && evt.id) {
-          matchedId = evt.id;
-        }
-      }
-      must(count <= stopOn, "task execution not found");
-      if (
-        count === stopOn &&
-        matchedId === evt.previousEventId &&
-        evt.taskScheduledEventDetails
-      ) {
-        must(
-          evt.taskScheduledEventDetails.parameters,
-          "expected task parameters",
-        );
-        return true;
-      }
-      return false;
+
+    const stateEnteredEvents = this.history.filter((evt) => {
+      return (
+        evt.stateEnteredEventDetails &&
+        evt.stateEnteredEventDetails.name === taskName
+      );
     });
-    must(
-      scheduled?.taskScheduledEventDetails?.parameters,
-      `task parameters not found for ${taskName}`,
-    );
-    const taskInput = JSON.parse(
-      scheduled.taskScheduledEventDetails.parameters,
-    ) as Record<string, unknown>;
-    if (options?.path) {
-      return JSONPath({
-        path: options.path,
-        json: taskInput,
-        flatten: true,
-        wrap: false,
+
+    return stateEnteredEvents
+      .map((evt) => {
+        return this.history.find((e) => {
+          return e.previousEventId === evt.id && e.taskScheduledEventDetails;
+        });
+      })
+      .filter((evt) => !!evt)
+      .map(
+        (evt) =>
+          evt as HistoryEvent & {
+            taskScheduledEventDetails: NonNullable<
+              HistoryEvent["taskScheduledEventDetails"]
+            >;
+          },
+      )
+      .map((evt) => {
+        const taskInput = JSON.parse(
+          evt.taskScheduledEventDetails.parameters as string,
+        ) as Record<string, unknown>;
+        if (options?.path) {
+          return JSONPath<Record<string, unknown>>({
+            path: options.path,
+            json: taskInput,
+            flatten: true,
+            wrap: false,
+          });
+        }
+        return taskInput;
       });
-    }
-    return taskInput;
   }
 
   getHistoryEvents(): HistoryEvent[] {
@@ -374,14 +375,18 @@ export class AslTestRunner<
     );
 
     assertions.forEach((assertion) => {
-      expect(
-        this.getTaskParameters(assertion.stateName, assertion.options ?? null),
-      ).toMatchSnapshot(
-        {
-          ...(assertion?.propertyMatcher ?? {}),
-        },
-        `${assertion.stateName}${assertion.label ?? ""}`,
+      const taskInputs = this.getTaskParameters(
+        assertion.stateName,
+        assertion.options ?? null,
       );
+      taskInputs.forEach((taskInput) => {
+        expect(taskInput).toMatchSnapshot(
+          {
+            ...(assertion?.propertyMatcher ?? {}),
+          },
+          `${assertion.stateName}${assertion.label ?? ""}`,
+        );
+      });
     });
   }
 }
