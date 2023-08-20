@@ -1,0 +1,42 @@
+@startuml
+hide empty description
+skinparam ArrowColor #black
+skinparam state {
+
+    BackgroundColor<<Choice>> #whitesmoke
+    FontColor<<Choice>> automatic
+
+    BackgroundColor<<aslParallel>> #whitesmoke
+
+    BackgroundColor<<aslTask>> #lightblue
+    FontColor<<aslTask>> automatic
+    BackgroundColor<<Compensate>> #orange
+}
+state "Add to FollowUp" as state7<<aslTask>>
+state "CustomValidationFailed" as state6<<aslTask>>
+state "CustomerAddedToFollowup" as state8<<aslTask>>
+state "DetectSentiment" as state2<<aslTask>>
+state "Is Positive Sentiment?" as state4<<Choice>>
+state "NegativeSentimentDetected" as state5<<aslTask>>
+state "Validation" as state1<<aslParallel>> {
+state "Branch 1" as state1_1 {
+state "Check Identity" as state9<<aslTask>>
+}
+state "Branch 2" as state1_2 {
+state "Check Address" as state10<<aslTask>>
+}
+}
+state "ValidationException" as state3<<aslTask>>
+[*] --> state1
+state1 --> state2
+state1 -[bold,#orange]-> state6
+state1 -[bold,#orange]-> state3
+state2 --> state4
+state3 --> [*]
+state4 --> state7
+state4 --> state5
+state5 --> [*]
+state6 --> [*]
+state7 --> state8
+state8 --> [*]
+@enduml

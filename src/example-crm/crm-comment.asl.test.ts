@@ -32,7 +32,7 @@ describe("tests for crm-comment.asl.json", () => {
     >(CrmCommentMock, {
       "crm-comment": path.join(
         __dirname,
-        "../../src/example-crm/crm-comment.asl.json"
+        "../../src/example-crm/crm-comment.asl.json",
       ),
     });
   });
@@ -62,10 +62,10 @@ describe("tests for crm-comment.asl.json", () => {
             startMessage: StartMessages["HappyPathTest"],
             scenario: "HappyPathTest",
           },
-          afterCompletion
+          afterCompletion,
         );
       },
-      TIMEOUT
+      TIMEOUT,
     );
 
     it(
@@ -78,10 +78,10 @@ describe("tests for crm-comment.asl.json", () => {
             startMessage: StartMessages["NegativeSentimentTest"],
             scenario: "NegativeSentimentTest",
           },
-          afterCompletion
+          afterCompletion,
         );
       },
-      TIMEOUT
+      TIMEOUT,
     );
 
     it(
@@ -94,10 +94,10 @@ describe("tests for crm-comment.asl.json", () => {
             startMessage: StartMessages["CustomValidationFailedCatchTest"],
             scenario: "CustomValidationFailedCatchTest",
           },
-          afterCompletion
+          afterCompletion,
         );
       },
-      TIMEOUT
+      TIMEOUT,
     );
 
     it(
@@ -110,10 +110,10 @@ describe("tests for crm-comment.asl.json", () => {
             startMessage: StartMessages["ValidationExceptionCatchTest"],
             scenario: "ValidationExceptionCatchTest",
           },
-          afterCompletion
+          afterCompletion,
         );
       },
-      TIMEOUT
+      TIMEOUT,
     );
 
     it(
@@ -126,10 +126,10 @@ describe("tests for crm-comment.asl.json", () => {
             startMessage: StartMessages["RetryOnServiceExceptionTest"],
             scenario: "RetryOnServiceExceptionTest",
           },
-          afterCompletion
+          afterCompletion,
         );
       },
-      TIMEOUT
+      TIMEOUT,
     );
   });
 });

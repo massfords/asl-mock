@@ -12,7 +12,7 @@ type StateExecution = {
   // stateEnteredEventDetails.name
   name: string;
   // stateExitedEventDetails hint for status
-  result: "error" | "ok" | null;
+  results: Array<"error" | "ok">;
   isTask: boolean;
 };
 const TASK_COLOR = "#2b665e";
@@ -31,11 +31,25 @@ const themeFromHistory = (history: HistoryEvent[]): UserSpecifiedConfig => {
       },
       wrapStateNamesAt: 15,
       stateStyles: [
-        ...states.map(({ result, name, isTask }) => {
+        ...states.map(({ results, name, isTask }) => {
           return {
             pattern: `^${name.replace("?", "\\?")}$`,
+            ...(isTask &&
+            results.length > 1 &&
+            results.includes("error") &&
+            results[results.length - 1] === "ok"
+              ? {
+                  description: results
+                    .map((result) =>
+                      result === "error"
+                        ? "<:warning:>"
+                        : "<:white_check_mark:>",
+                    )
+                    .join(" "),
+                }
+              : null),
             color:
-              result === "ok"
+              results[results.length - 1] === "ok"
                 ? isTask
                   ? TASK_COLOR
                   : OTHER_COLOR
@@ -65,7 +79,7 @@ export const writeScenarioPuml = ({
 }): void => {
   const theme: UserSpecifiedConfig = themeFromHistory(history);
   const result = asl_to_puml(definition, theme);
-  must(result.isValid);
+  must(result.isValid, "invalid diagram", { result });
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir);
   }
@@ -73,26 +87,42 @@ export const writeScenarioPuml = ({
   fs.writeFileSync(scenarioFile, result.puml, "utf-8");
 };
 
+const findStateName = (history: HistoryEvent[], eventId: number): string => {
+  let id = eventId;
+  while (id) {
+    const event = history.find((evt) => evt.id === id);
+    must(event, "failed to find event with id", { id });
+    if (event.stateEnteredEventDetails) {
+      return event.stateEnteredEventDetails.name as string;
+    }
+    must(event.previousEventId, "event missing previous id", { event });
+    id = event.previousEventId;
+  }
+  throw Error(`state name not found for ${eventId}`);
+};
+
 const getStateResults = (history: HistoryEvent[]): StateExecution[] => {
   // const executions = []
   // map the state to its execution status
-  // initialize the value to error and set it when we see its exit
-  const map = new Map<string, "error" | "ok">();
+  const map = new Map<string, StateExecution>();
   history.forEach((evt) => {
     if (evt.stateEnteredEventDetails?.name) {
-      map.set(evt.stateEnteredEventDetails.name, "error");
-    } else if (evt.stateExitedEventDetails?.name) {
-      map.set(evt.stateExitedEventDetails.name, "ok");
-    }
-  });
-  return history
-    .filter((evt) => evt.stateEnteredEventDetails?.name)
-    .map((evt) => {
-      must(evt.stateEnteredEventDetails?.name);
-      return {
+      const stateResults = map.get(evt.stateEnteredEventDetails.name) ?? {
         name: evt.stateEnteredEventDetails.name,
-        result: map.get(evt.stateEnteredEventDetails.name) ?? null,
+        results: [],
         isTask: evt.type === HistoryEventType.TaskStateEntered,
       };
-    });
+      map.set(evt.stateEnteredEventDetails.name, stateResults);
+    } else if (evt.stateExitedEventDetails?.name) {
+      const stateResults = map.get(
+        evt.stateExitedEventDetails?.name,
+      ) as StateExecution;
+      stateResults.results.push("ok");
+    } else if (evt.taskFailedEventDetails || evt.taskTimedOutEventDetails) {
+      const stateName = findStateName(history, evt.previousEventId as number);
+      const stateResults = map.get(stateName) as StateExecution;
+      stateResults.results.push("error");
+    }
+  });
+  return [...map.values()];
 };

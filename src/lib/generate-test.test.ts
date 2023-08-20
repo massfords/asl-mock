@@ -12,7 +12,7 @@ describe("tests the generation of units tests from mock config", () => {
 
     const { found, mockConfigTypeArgs, stateMachines, decl } =
       parseTypeScriptFile(
-        join(__dirname, "../example-crm/crm-comment.mock.ts")
+        join(__dirname, "../example-crm/crm-comment.mock.ts"),
       );
     must(found, "not found");
     must(mockConfigTypeArgs, "not type args");
